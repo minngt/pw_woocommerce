@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('HOMEPAGE', () => {
+test.describe('Playwright Material VN', () => {
 
   test('Verify page title', async ({ page }) => {
     await page.goto('https://material.playwrightvn.com/');
