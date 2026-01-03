@@ -1,14 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('HOMEPAPE', () => {
+const STOREFRONT_URL = 'https://e-commerce.betterbytesvn.com';
+const EXPECTED_TITLE = 'E-commerce site for automation testing – Automation test site';
+
+test.describe('HOMEPAGE', () => {
 
     test('Verify page title', async ({ page }) => {
         await test.step('Navigate to storefront page', async () => {
-            await page.goto('https://e-commerce.betterbytesvn.com');
-        })
+            await page.goto(STOREFRONT_URL);
+        });
         
         await test.step('Verify page title', async() => {
-            await expect(page).toHaveTitle('E-commerce site for automation testing – Automation test site')
-        })
+            await expect(page).toHaveTitle(EXPECTED_TITLE);
+        });
     });
-})
+});
