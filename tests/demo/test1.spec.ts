@@ -83,7 +83,76 @@ test.describe('Playwright Practice', async () => {
         });
     });
 
-    test('Test 02 - Test Product Page', async ({ page} ) => {
-        
+    test('Test 02 - Test Product Page', async ({ page }) => {
+
+        type Product = {
+            name: string;
+            quantity: number;
+            price: number; // optional
+        };
+
+        let productToCart: Product[] = [
+            {
+                name: "Product 1",
+                quantity: 2,
+                price: 0
+            },
+            {
+                name: "Product 2",
+                quantity: 3,
+                price: 0
+            },
+            {
+                name: "Product 3",
+                quantity: 1,
+                price: 0
+            }
+        ]
+
+        await test.step('Navigate to https://material.playwrightvn.com', async () => {
+            await page.goto(MATERIALPAGE_URL);
+        });
+
+        await test.step('Navigate to product page', async () => {
+            await page.locator("//*[@href='02-xpath-product-page.html']").click();
+            await expect(page.locator("//h1")).toContainText('Simple E-commerce');
+        });
+
+        await test.step('Add product to cart', async () => {
+
+            for (const product of productToCart) {
+                const productNameLoc = page.locator(`//div[normalize-space()='${product.name}']`)
+                const addButtonLoc = productNameLoc.locator('xpath=following-sibling::button')
+                const priceLoc = productNameLoc.locator('xpath=following-sibling::div[@class="product-price"]')
+                const productPriceText = await priceLoc.innerText()
+                const productPrice = Number(productPriceText.replace(/[^\d.]/g, ''));
+
+                product.price = productPrice;
+
+                for (let i = 0; i < product.quantity; i++) {
+                    await addButtonLoc.click();
+                }
+            }
+        });
+
+        await test.step('Verify product in cart and total price', async () => {
+            const rows = page.locator('#cart-items tr');
+            const totalPriceLocs = page.locator("//td[@class='total-price']");
+            let totalPrice = 0
+            let i = 0;
+            for (let item of productToCart) {
+                const rowIndex = rows.nth(i++);
+                const columnName = rowIndex.locator('td').nth(0);
+                const columnPrice = rowIndex.locator('td').nth(1);
+                const columnQuantity = rowIndex.locator('td').nth(2);
+                totalPrice += item.price * item.quantity
+
+                await expect(columnName).toHaveText(item.name)
+                await expect(columnPrice).toContainText(item.price.toLocaleString())
+                await expect(columnQuantity).toHaveText(item.quantity.toLocaleString());
+            }
+            await expect(totalPriceLocs).toContainText(totalPrice.toLocaleString())
+
+        })
     })
 })
