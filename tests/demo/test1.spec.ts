@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { newsletterData } from './newsletterData';
 
 test.describe('Playwright Practice', async () => {
     const MATERIALPAGE_URL = 'https://material.playwrightvn.com'
@@ -185,10 +186,42 @@ test.describe('Playwright Practice', async () => {
             }
             await expect(taskListLoc).toHaveCount(50);
             for (let i = 1; i <= 50; i++) {
-                await expect(taskListLoc.nth(i-1).locator('span')).toHaveText(`Todo ${i*2}`)
+                await expect(taskListLoc.nth(i - 1).locator('span')).toHaveText(`Todo ${i * 2}`)
             }
+        });
+    });
+
+    test('Test 04 - Personal notes', async ({ page }) => {
+        const notes = await newsletterData();
+
+        await test.step('Navigate to material page', async () => {
+            await page.goto(MATERIALPAGE_URL);
+        });
+
+        await test.step('Navigate to Personal notes page', async () => {
+            await page.locator('//a[@href="04-xpath-personal-notes.html"]').click();
+            await expect(page.locator('//h1')).toHaveText('Personal Notes')
+        });
+
+        await test.step('Add 10 notes with titles and contents', async () => {
+            for (let i = 0; i < 10; i++) {
+                await page.locator('#note-title').fill(notes[i].title);
+                await page.locator('#note-content').fill(notes[i].content);
+                await page.locator('#add-note').click();
+            }
+
+            await expect(page.locator('#notes-list li')).toHaveCount(10);
+
+            for(let i = 0; i < 10; i++){
+                await expect(page.locator('#notes-list li strong').nth(i)).toContainText(notes[i].title);
+                await expect(page.locator('#notes-list li p').nth(i)).toContainText(notes[i].content);
+            }
+        });
+
+        await test.step('Search title', async() => {
+            await page.locator('#search').fill(notes[0].title);
+            await expect(page.locator('#notes-list li')).toHaveCount(1);
+            await expect(page.locator('#notes-list li').nth(0)).toContainText(notes[0].title);
         })
-
-
     })
 })
