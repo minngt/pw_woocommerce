@@ -45,10 +45,12 @@ test.describe('Playwright Practice', async () => {
             await page.locator('#bio').fill(registerInfo.biography);
             await page.locator('#rating').fill(registerInfo.rating);
             await page.locator('#favcolor').fill(registerInfo.favColor);
-            registerInfo.newsletter === 'Yes' ?
-                await page.locator('#newsletter').check() : null
-            registerInfo.switch === 'Yes' ?
-                await page.locator('//label[@class="switch"]').click() : null
+            if (registerInfo.newsletter === 'Yes') {
+                await page.locator('#newsletter').check();
+            }
+            if (registerInfo.switch === 'Yes') {
+                await page.locator('//label[@class="switch"]').click();
+            }
 
             await page.locator('//button[@type="submit"]').click();
         });
