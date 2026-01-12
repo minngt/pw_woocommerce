@@ -152,7 +152,43 @@ test.describe('Playwright Practice', async () => {
                 await expect(columnQuantity).toHaveText(item.quantity.toLocaleString());
             }
             await expect(totalPriceLocs).toContainText(totalPrice.toLocaleString())
+        });
+    });
 
+    test('Test 03 - Todo page', async ({ page }) => {
+        const taskListLoc = page.locator('#task-list li');
+
+        await test.step('Navigate to material page', async () => {
+            await page.goto(MATERIALPAGE_URL);
+        });
+
+        await test.step('Navigate to Todo page', async () => {
+            await page.locator('//a[@href="03-xpath-todo-list.html"]').click();
+            await expect(page.locator('//h1')).toHaveText('To-Do List')
+        });
+
+        await test.step('Add todo list "Todo i"', async () => {
+            for (let i = 0; i < 100; i++) {
+                await page.locator('//input[@id="new-task"]').fill(`Todo ${i + 1}`);
+                await page.locator('//button[@id="add-task"]').click();
+                await expect(taskListLoc.nth(i).locator('span')).toHaveText(`Todo ${i + 1}`)
+            }
+        });
+
+        await test.step('Delete todo items with an odd number', async () => {
+
+            for (let i = 99; i >= 1; i -= 2) {
+                page.once('dialog', dialog => {
+                    dialog.accept();
+                });
+                await page.locator(`#todo-${i}-delete`).click();
+            }
+            await expect(taskListLoc).toHaveCount(50);
+            for (let i = 1; i <= 50; i++) {
+                await expect(taskListLoc.nth(i-1).locator('span')).toHaveText(`Todo ${i*2}`)
+            }
         })
+
+
     })
 })
